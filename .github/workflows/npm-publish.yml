@@ -1,0 +1,51 @@
+name: Build & Publish to npm
+
+# Only publish on semantic version tags (v1.0.0 etc.)
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+
+    # 1) Checkout your repository
+    - uses: actions/checkout@v5
+
+    # 2) Set up Node.js (npm required)
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '20'
+        registry-url: 'https://registry.npmjs.org'
+
+    # 3) Install build tools (Rust + cargo)
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: 'stable'
+        override: true
+
+    # 4) Install dependencies and build
+    - name: Install npm deps & build
+      run: |
+        npm install
+        npm run build --if-present
+      env:
+        # ensure rust build works
+        CARGO_TARGET_DIR: target
+
+    # 5) Run napi build
+    - name: Build native bindings
+      run: npm run build:napi
+      # This assumes you have a script like:
+      # "build:napi": "napi build --release"
+      shell: bash
+
+    # 6) Publish to npm
+    - name: Publish to npm
+      run: npm publish --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
