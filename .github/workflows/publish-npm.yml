@@ -35,6 +35,8 @@ jobs:
       - name: Publish to npm
         run: |
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
-          npm publish --access public
+          npm publish --access public --otp ${{ secrets.NPM_OTP }}
+          # Note: You need to add NPM_OTP as a repository secret with your 2FA code
+          # The OTP is only valid for 30 seconds, so you'll need to update it before each publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
