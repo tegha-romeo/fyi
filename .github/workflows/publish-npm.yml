@@ -11,14 +11,14 @@ jobs:
 
     defaults:
       run:
-        working-directory: crates/vym-fyi-node # ✅ important!
+        working-directory: crates/vym-fyi-node
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
@@ -26,17 +26,13 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install npm dependencies
-        run: npm install
+      - name: Install dependencies
+        run: npm ci
 
       - name: Build native module
         run: npm run build
 
       - name: Publish to npm
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
-          npm publish --access public --otp ${{ secrets.NPM_OTP }}
-          # Note: You need to add NPM_OTP as a repository secret with your 2FA code
-          # The OTP is only valid for 30 seconds, so you'll need to update it before each publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
