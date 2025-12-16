@@ -18,4 +18,7 @@ test.yaml
 *.tgz
 
 .trivycache
-spool
+
+node_modules/
+**/node_modules/
+
